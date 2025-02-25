@@ -3,13 +3,11 @@ import pygame
 import requests
 import os
 
-
 if __name__ == '__main__':
     pygame.init()
     screen = pygame.display.set_mode((650, 450))
 
     api_server = "https://static-maps.yandex.ru/v1"
-
     lon = "28.98513"
     lat = "41.036943"
     delta1 = "0.0029"
@@ -52,6 +50,21 @@ if __name__ == '__main__':
                 if event.key == pygame.K_PAGEDOWN:
                     if params['scale'] - scale_coefficient > 1:
                         params['scale'] -= scale_coefficient
+                    response = requests.get(api_server, params=params)
+
+                    if response.status_code == 200:
+                        with open("map.png", "wb") as f:
+                            f.write(response.content)
+
+                if event.key in [pygame.K_UP, pygame.K_DOWN, pygame.K_LEFT, pygame.K_RIGHT]:
+                    d = 0.001
+                    move_dkt = {pygame.K_UP: [lon, str(float(lat) + d)],
+                                pygame.K_DOWN: [lon, str(float(lat) - d)],
+                                pygame.K_LEFT: [str(float(lon) - d), lat],
+                                pygame.K_RIGHT: [str(float(lon) + d), lat]}
+
+                    lon, lat = move_dkt[event.key]
+                    params["ll"] = ",".join([lon, lat])
                     response = requests.get(api_server, params=params)
 
                     if response.status_code == 200:
