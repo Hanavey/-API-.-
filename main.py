@@ -5,7 +5,7 @@ import os
 from interface import Button, FindLine, Label
 
 
-def create_responce(api, parampampam):
+def create_response(api, parampampam):
     response = requests.get(api, params=parampampam)
     if response.status_code == 200:
         with open("map.png", "wb") as f:
@@ -56,7 +56,7 @@ if __name__ == '__main__':
         "apikey": apikey,
         "theme": "light"
     }
-    create_responce(api_server, params)
+    create_response(api_server, params)
 
     map_screen = pygame.image.load("map.png")
     screen.blit(map_screen, (center[0] - 325, center[1] - 225))
@@ -73,12 +73,12 @@ if __name__ == '__main__':
                 if event.key == pygame.K_PAGEUP:
                     if params['scale'] + scale_coefficient < 4:
                         params['scale'] += scale_coefficient
-                    create_responce(api_server, params)
+                    create_response(api_server, params)
 
                 if event.key == pygame.K_PAGEDOWN:
                     if params['scale'] - scale_coefficient > 1:
                         params['scale'] -= scale_coefficient
-                    create_responce(api_server, params)
+                    create_response(api_server, params)
 
                 if event.key in [pygame.K_UP, pygame.K_DOWN, pygame.K_LEFT, pygame.K_RIGHT]:
                     d = 0.001
@@ -89,7 +89,7 @@ if __name__ == '__main__':
 
                     lon, lat = move_dkt[event.key]
                     params["ll"] = ",".join([lon, lat])
-                    create_responce(api_server, params)
+                    create_response(api_server, params)
 
         theme_button.update()
         findline.update(events)
@@ -99,13 +99,13 @@ if __name__ == '__main__':
 
         if theme_button.result:
             params["theme"] = theme_button.theme
-            create_responce(api_server, params)
+            create_response(api_server, params)
 
         if delete_button.result:
             findline.delete()
             if 'pt' in params:
                 del params["pt"]
-            create_responce(api_server, params)
+            create_response(api_server, params)
             label_address.set_text('')
 
         if find_button.result:
@@ -115,7 +115,7 @@ if __name__ == '__main__':
                 lon, lat = pos[0].split()
                 params["pt"] = f"{lon},{lat},pm2rdm"
                 params["ll"] = f"{lon},{lat}"
-                create_responce(api_server, params)
+                create_response(api_server, params)
             else:
                 print("Не удалось найти координаты для введенного адреса.")
         map_screen = pygame.image.load("map.png")
