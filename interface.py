@@ -80,3 +80,6 @@ class FindLine:
                         self.text = self.text[:-1]
                     elif event.unicode.isprintable():
                         self.text += event.unicode
+
+    def delete(self):
+        self.text = ""

@@ -40,6 +40,7 @@ if __name__ == '__main__':
     theme_button = Button(screen, (right_center[0] - 90, 10), (70, 30))
     findline = FindLine(screen, (center[0] - 325, 20), (400, 35))
     find_button = Button(screen, (center[0] + 80, 15), (80, 45), text="Найти")
+    delete_button = Button(screen, (10, 10), (70, 30), text="Delete")
 
     api_server = "https://static-maps.yandex.ru/v1"
     lon = "28.98513"
@@ -95,9 +96,16 @@ if __name__ == '__main__':
         theme_button.update()
         findline.update(events)
         find_button.update()
+        delete_button.update()
 
         if theme_button.result:
             params["theme"] = theme_button.theme
+            create_responce(api_server, params)
+
+        if delete_button.result:
+            findline.delete()
+            if 'pt' in params:
+                del params["pt"]
             create_responce(api_server, params)
 
         if find_button.result:
