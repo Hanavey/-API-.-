@@ -12,14 +12,24 @@ def create_response(api, parampampam):
             f.write(response.content)
 
 
-def find_place_cord(place):
+def find_place_cord(place, post_code=False):
     server = "https://geocode-maps.yandex.ru/1.x/?"
     API = "8013b162-6b42-4997-9691-77b7074026e0"
     geocoder = place
     request = f"{server}apikey={API}&geocode={geocoder}&format=json"
-    response = requests.get(request).json()["response"]["GeoObjectCollection"]["featureMember"][0]["GeoObject"]
+    response = requests.get(request).json()
     if response:
-        return response["Point"]["pos"], response["metaDataProperty"]["GeocoderMetaData"]["text"]
+        response = response["response"]["GeoObjectCollection"]["featureMember"][0]["GeoObject"]
+        return_list =  [str(response["Point"]["pos"]), str(response["metaDataProperty"]["GeocoderMetaData"]["text"])]
+        if post_code:
+            try:
+                return_list.append(str(response['metaDataProperty']['GeocoderMetaData']['Address']['postal_code']))
+            except KeyError:
+                print('Почтовый индекс не найден')
+                return_list.append('')
+        else:
+            return_list.append('')
+        return tuple(return_list)
 
 
 if __name__ == '__main__':
@@ -33,12 +43,14 @@ if __name__ == '__main__':
     right_center = [info.current_w, info.current_h / 2]
     upper_center = [info.current_w / 2, 0]
     lower_center = [info.current_w / 2, info.current_h]
+    flag_post = False
 
     theme_button = Button(screen, (right_center[0] - 90, 10), (70, 30))
     findline = FindLine(screen, (center[0] - 325, 20), (400, 35))
     find_button = Button(screen, (center[0] + 80, 15), (80, 45), text="Найти")
     delete_button = Button(screen, (10, 10), (70, 30), text="Delete")
     label_address = Label(screen, (lower_center[0] - 460, lower_center[1] - 45), (920, 35))
+    post_btn = Button(screen, (10, 50), (110, 45), text="Post index")
 
     api_server = "https://static-maps.yandex.ru/v1"
     lon = "28.98513"
@@ -96,6 +108,7 @@ if __name__ == '__main__':
         find_button.update()
         delete_button.update()
         label_address.update()
+        post_btn.update()
 
         if theme_button.result:
             params["theme"] = theme_button.theme
@@ -108,9 +121,15 @@ if __name__ == '__main__':
             create_response(api_server, params)
             label_address.set_text('')
 
+        if post_btn.result:
+            flag_post = not flag_post
+
         if find_button.result:
             pos = find_place_cord(findline.text)
-            label_address.set_text(find_place_cord(findline.text)[1])
+            text = [find_place_cord(findline.text)[1]]
+            if flag_post:
+                text.append(find_place_cord(findline.text, flag_post)[2])
+            label_address.set_text(', '.join(text))
             if pos:
                 lon, lat = pos[0].split()
                 params["pt"] = f"{lon},{lat},pm2rdm"
