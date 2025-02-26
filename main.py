@@ -46,7 +46,7 @@ if __name__ == '__main__':
     lat = "41.036943"
     delta1 = "0.0029"
     delta2 = "0.0029"
-    apikey = "f3a0fe3a-b07e-4840-a1da-06f18b2ddf13"
+    apikey = "81b63ec7-b5bf-4e94-97fd-5645a56b1305"
     scale_coefficient = 0.25
 
     params = {
