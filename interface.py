@@ -83,3 +83,21 @@ class FindLine:
 
     def delete(self):
         self.text = ""
+
+class Label:
+    def __init__(self, screen, label_cor, label_size):
+        self.screen = screen
+        self.label_cor = label_cor
+        self.label_size = label_size
+        self.text = ''
+        self.font = pygame.font.Font(None, 30)
+
+    def update(self):
+        label_line = pygame.Surface((self.label_size[0], self.label_size[1]))
+        label_line.fill((255, 255, 255))
+        label_text = self.font.render(self.text, True, "black")
+        label_line.blit(label_text, (7, 6))
+        self.screen.blit(label_line, (self.label_cor[0], self.label_cor[1]))
+
+    def set_text(self, text):
+        self.text = text

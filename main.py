@@ -2,7 +2,7 @@ import sys
 import pygame
 import requests
 import os
-from interface import Button, FindLine
+from interface import Button, FindLine, Label
 
 
 def create_responce(api, parampampam):
@@ -13,16 +13,13 @@ def create_responce(api, parampampam):
 
 
 def find_place_cord(place):
-    server = "http://geocode-maps.yandex.ru/1.x/?"
+    server = "https://geocode-maps.yandex.ru/1.x/?"
     API = "8013b162-6b42-4997-9691-77b7074026e0"
     geocoder = place
     request = f"{server}apikey={API}&geocode={geocoder}&format=json"
-    response = requests.get(request)
+    response = requests.get(request).json()["response"]["GeoObjectCollection"]["featureMember"][0]["GeoObject"]
     if response:
-        pos = response.json()["response"]["GeoObjectCollection"]["featureMember"][0]["GeoObject"]["Point"]["pos"]
-        return pos
-    else:
-        return False
+        return response["Point"]["pos"], response["metaDataProperty"]["GeocoderMetaData"]["text"]
 
 
 if __name__ == '__main__':
@@ -41,6 +38,7 @@ if __name__ == '__main__':
     findline = FindLine(screen, (center[0] - 325, 20), (400, 35))
     find_button = Button(screen, (center[0] + 80, 15), (80, 45), text="Найти")
     delete_button = Button(screen, (10, 10), (70, 30), text="Delete")
+    label_address = Label(screen, (lower_center[0] - 460, lower_center[1] - 45), (920, 35))
 
     api_server = "https://static-maps.yandex.ru/v1"
     lon = "28.98513"
@@ -97,6 +95,7 @@ if __name__ == '__main__':
         findline.update(events)
         find_button.update()
         delete_button.update()
+        label_address.update()
 
         if theme_button.result:
             params["theme"] = theme_button.theme
@@ -107,11 +106,13 @@ if __name__ == '__main__':
             if 'pt' in params:
                 del params["pt"]
             create_responce(api_server, params)
+            label_address.set_text('')
 
         if find_button.result:
             pos = find_place_cord(findline.text)
+            label_address.set_text(find_place_cord(findline.text)[1])
             if pos:
-                lon, lat = pos.split()
+                lon, lat = pos[0].split()
                 params["pt"] = f"{lon},{lat},pm2rdm"
                 params["ll"] = f"{lon},{lat}"
                 create_responce(api_server, params)
